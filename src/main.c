@@ -11,7 +11,7 @@
             printf("--cpu : display cpu information \n");
             printf("--memory : display memory information \n");
             printf("--disk: display disk information \n");
-            printf("--file <filename> : display file information \n");
+            printf("--file <filepath> : display file information \n");
 
         }
 
@@ -24,6 +24,7 @@
             }
             printf("command failed \n");
             return EXIT_FAILURE;
+
         }
 
         int inspect_file(const char *path){
@@ -38,23 +39,18 @@
             if (pid==0){
                 /*child process*/
                 execlp("file", "file", "--", path, (char *)NULL);
-
                 perror("execlp");
                 _exit(EXIT_FAILURE);
-
             }
 
             else if (pid>0){
                 /*parent process*/
-
                 int status;
                 pid_t retour = waitpid(pid, &status, 0);
-
                 if (retour == -1) {
                 perror("waitpid");
                 return EXIT_FAILURE;
-                }
-                
+                }   
                 if (WIFEXITED(status)){
                     int exit_status = WEXITSTATUS(status);
                     if (exit_status==0){
@@ -68,12 +64,7 @@
                 }
                 printf("file process terminated abnormally\n");
                 return EXIT_FAILURE;
-
             }
-
-        
-
-
         }
 
         int main(int argc, char *argv[]) {
