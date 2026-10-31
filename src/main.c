@@ -1,3 +1,5 @@
+        #define _POSIX_C_SOURCE 200809L
+        
         #include <stdlib.h>
         #include <stdio.h>
         #include <string.h>
@@ -6,6 +8,7 @@
         #include <sys/wait.h>
         #include <sys/stat.h>
         #include <inttypes.h>
+        #include <time.h>
 
         void print_help(void){
 
@@ -20,14 +23,18 @@
         int print_file_metadata(const char *path){
 
             struct stat infos;
-            int resultat = stat(path, &infos);
+            int resultat = lstat(path, &infos);
+
+            
 
             if (resultat==-1){
-                perror("stat");
+                perror("lstat");
                 return EXIT_FAILURE;
             }
 
-            printf("Size ; %jd bytes\n", (intmax_t)infos.st_size);
+            
+
+            printf("Size : %jd bytes\n", (intmax_t)infos.st_size);
 
             if (S_ISREG(infos.st_mode)){
                 printf("Type : regular file\n");
@@ -46,11 +53,11 @@
             /*last modification time*/
             char *date = ctime(&infos.st_mtime);
             if (date==NULL){
-                perror("ctime");
+                fprintf(stderr, "ctime failed\n");
                 return EXIT_FAILURE;
             }
             printf("Last modification time : %s", date);
-            
+
             /*GID*/
             printf("Owner UID: %ju\n", (uintmax_t)infos.st_uid);
             printf("Owner GID: %ju\n", (uintmax_t)infos.st_gid);
@@ -145,7 +152,7 @@
                 _exit(EXIT_FAILURE);
             }
 
-            else if (pid>0){
+            else {
                 /*parent process*/
                 int status;
                 pid_t retour = waitpid(pid, &status, 0);
