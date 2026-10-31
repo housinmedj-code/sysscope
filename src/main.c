@@ -27,9 +27,95 @@
                 return EXIT_FAILURE;
             }
 
-            printf("Size ; %jd \n", (intmax_t)infos.st_size);
-            return EXIT_SUCCESS;
+            printf("Size ; %jd bytes\n", (intmax_t)infos.st_size);
 
+            if (S_ISREG(infos.st_mode)){
+                printf("Type : regular file\n");
+            }
+            else if (S_ISDIR(infos.st_mode)){
+                printf("Type : directory\n");
+            }
+            else if (S_ISLNK(infos.st_mode)){
+                printf("Type : symbolic link\n");
+            }
+            else{
+                printf("Type : other\n");
+
+            }
+
+            /*last modification time*/
+            char *date = ctime(&infos.st_mtime);
+            if (date==NULL){
+                perror("ctime");
+                return EXIT_FAILURE;
+            }
+            printf("Last modification time : %s", date);
+            
+            /*GID*/
+            printf("Owner UID: %ju\n", (uintmax_t)infos.st_uid);
+            printf("Owner GID: %ju\n", (uintmax_t)infos.st_gid);
+            /* Permissions */
+            printf("Permissions : ");
+                /*propriétaire*/
+            if(infos.st_mode & S_IRUSR){
+                printf("r");
+            }else{
+                printf("-");
+            }
+            if (infos.st_mode & S_IWUSR){
+                printf("w");
+            }else{
+                printf("-");
+            }
+            if (infos.st_mode & S_IXUSR){
+                printf("x");
+            }else{
+                printf("-");
+            }
+
+                /*groupe*/
+            if (infos.st_mode & S_IRGRP){
+                printf("r");
+            }else{
+                printf("-");
+            }
+
+            if (infos.st_mode & S_IWGRP){
+                printf("w");
+            }else{
+                printf("-");
+            }
+
+            if (infos.st_mode & S_IXGRP){
+                printf("x");
+            }else{
+                printf("-");
+            }
+
+            /*autres*/
+
+            if (infos.st_mode & S_IROTH){
+                printf("r");
+            }else{
+                printf("-");
+            }
+
+            if (infos.st_mode & S_IWOTH){
+                printf("w");
+            }else{
+                printf("-");
+            }
+
+            if (infos.st_mode & S_IXOTH){
+                printf("x");
+            }else{
+                printf("-");
+            }
+
+            printf("\n");
+
+
+            return EXIT_SUCCESS;
         }
 
         int run_command(char *command){
@@ -41,7 +127,6 @@
             }
             printf("command failed \n");
             return EXIT_FAILURE;
-
         }
 
         int inspect_file(const char *path){
@@ -124,7 +209,8 @@
                     return EXIT_FAILURE;
                 }
                 printf("file to inspect : %s \n", argv[2]);
-                return inspect_file(argv[2]);
+                return print_file_metadata(argv[2]);
+                
             }
             
             printf("option not found \n");
