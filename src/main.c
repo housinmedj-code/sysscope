@@ -4,6 +4,8 @@
         #include <unistd.h>
         #include <sys/types.h>
         #include <sys/wait.h>
+        #include <sys/stat.h>
+        #include <inttypes.h>
 
         void print_help(void){
 
@@ -12,6 +14,21 @@
             printf("--memory : display memory information \n");
             printf("--disk: display disk information \n");
             printf("--file <filepath> : display file information \n");
+
+        }
+
+        int print_file_metadata(const char *path){
+
+            struct stat infos;
+            int resultat = stat(path, &infos);
+
+            if (resultat==-1){
+                perror("stat");
+                return EXIT_FAILURE;
+            }
+
+            printf("Size ; %jd \n", (intmax_t)infos.st_size);
+            return EXIT_SUCCESS;
 
         }
 
